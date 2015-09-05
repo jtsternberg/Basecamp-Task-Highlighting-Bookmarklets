@@ -112,7 +112,7 @@
 		close();
 	};
 
-	app.toggleAllLists = function( evt ) {
+	app.toggleAllLists = function() {
 		var $all_button = $( this );
 		var closeIt = ! $all_button.data( 'hidden' );
 
