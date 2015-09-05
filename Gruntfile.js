@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 
 		jshint: {
-    		files: ['Gruntfile.js', 'bookmarklets/**/*.js', '!bookmarklets/**/*.min.js', '!bookmarklets/**/*.bookmarklet.js'],
+    		files: ['Gruntfile.js', 'source/**/*.js'],
 			options: {
 				curly   : true,
 				eqeqeq  : true,
@@ -28,7 +28,7 @@ module.exports = function(grunt) {
 
 		concat : {
 			dist: {
-				files: { 'basecamp-ui-improvements.js': ['bookmarklets/**/*.js', '!bookmarklets/**/*.bookmarklet.js'] }
+				files: { 'basecamp-ui-improvements.js': ['source/**/*.js'] }
 			}
 		},
 
@@ -43,9 +43,13 @@ module.exports = function(grunt) {
 			}
 		},
 
+		exec: {
+			bookmarklet: 'php ~/bookmarklets source bookmarklets',
+		},
+
 		watch: {
 			js: {
-				files: ['Gruntfile.js', 'bookmarklets/**/*.js', '!bookmarklets/**/*.min.js', '!bookmarklets/**/*.bookmarklet.js'],
+				files: ['Gruntfile.js', 'source/**/*.js'],
 				tasks: ['default'],
 			}
 		}
@@ -56,6 +60,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-exec');
 
-	grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
+	grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'exec:bookmarklet']);
 };
