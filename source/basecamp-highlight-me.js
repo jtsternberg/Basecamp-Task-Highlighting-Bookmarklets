@@ -27,6 +27,9 @@
 		}
 
 		$me.parents( '.wrapper' ).addClass( 'BC-highlight-me' );
+
+		app.triggerEvent( $me );
+
 		app.init( 'Found '+ $me.length +' tasks for you.' );
 	};
 
@@ -74,6 +77,13 @@
 		setTimeout( function() {
 			app.highlightMe();
 		}, 1000 );
+	};
+
+	app.triggerEvent = function( $me ) {
+		if ( $me.length ) {
+			var ids = $me.parents( '.todolist' ).map(function() { return this.id; }).get();
+			$( 'body' ).trigger( 'basecamp_tasks_highlighted', { 'type' : 'me', 'ids' : ids } );
+		}
 	};
 
 	app.highlightMe();

@@ -28,6 +28,8 @@
 		var number = false !== $search && $search.length ? $search.length : 'No';
 		alert( number + ' tasks found for '+ app.search_name + '.' );
 
+		app.triggerEvent( $search );
+
 		if ( ! app.initDone ) {
 			$( 'body' ).on( 'click', 'a', app.clickLink );
 			app.addStyles();
@@ -69,6 +71,13 @@
 		setTimeout( function() {
 			app.highlightUser();
 		}, 1000 );
+	};
+
+	app.triggerEvent = function( $search ) {
+		if ( $search.length ) {
+			var ids = $search.parents( '.todolist' ).map(function() { return this.id; }).get();
+			$( 'body' ).trigger( 'basecamp_tasks_highlighted', { 'type' : 'user', 'search' : app.search_name, 'ids' : ids } );
+		}
 	};
 
 	app.init();

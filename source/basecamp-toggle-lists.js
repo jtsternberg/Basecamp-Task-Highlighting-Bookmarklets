@@ -16,6 +16,7 @@
 		$( 'body' ).on( 'click', '.minifier.minify-all', app.toggleAllLists );
 		$( 'body' ).on( 'click', '.minifier.minify-lists', app.toggleList );
 		$( 'body' ).on( 'click', 'a', app.clickLink );
+		$( 'body' ).on( 'basecamp_tasks_highlighted', app.maybeShowOnHighlight );
 
 		app.addStyles();
 		app.addAllButtons();
@@ -39,7 +40,7 @@
 			css += '.minifier.minify-lists {';
 				css += 'position: absolute;';
 				css += 'right: 0;';
-				css += 'top: .8em;';
+				css += 'top: .4em;';
 			css += '}';
 			css += '.minifier.minify-all {';
 				css += 'display: inline-block;';
@@ -52,7 +53,7 @@
 
 	app.addAllButtons = function() {
 		app.addAllButton();
-		$( '[data-sortable-type="todolist"]' ).each( app.addButtons );
+		$( '.todolists li[data-sortable-type="todolist"]' ).each( app.addButtons );
 
 		if ( app.autoHide ) {
 			setTimeout( function() {
@@ -135,6 +136,16 @@
 			app.addAllButtons();
 			setTimeout( app.clickLink, 200 );
 		}, 1000 );
+	};
+
+	app.maybeShowOnHighlight = function( evt, data ) {
+		var index, ids = data.ids;
+		for (index = ids.length - 1; index >= 0; index--) {
+			var $button = $( '[data-selector="sortable_' + ids[ index ] + '"]' );
+			if ( $button.length && $button.data( 'hidden' ) ) {
+				$button.trigger( 'click' );
+			}
+		}
 	};
 
 	app.init();

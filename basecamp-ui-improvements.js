@@ -27,6 +27,9 @@
 		}
 
 		$me.parents( '.wrapper' ).addClass( 'BC-highlight-me' );
+
+		app.triggerEvent( $me );
+
 		app.init( 'Found '+ $me.length +' tasks for you.' );
 	};
 
@@ -76,6 +79,13 @@
 		}, 1000 );
 	};
 
+	app.triggerEvent = function( $me ) {
+		if ( $me.length ) {
+			var ids = $me.parents( '.todolist' ).map(function() { return this.id; }).get();
+			$( 'body' ).trigger( 'basecamp_tasks_highlighted', { 'type' : 'me', 'ids' : ids } );
+		}
+	};
+
 	app.highlightMe();
 
 	window.BCHighlightMe = window.BCHighlightMe || app;
@@ -111,6 +121,8 @@
 
 		var number = false !== $search && $search.length ? $search.length : 'No';
 		alert( number + ' tasks found for '+ app.search_name + '.' );
+
+		app.triggerEvent( $search );
 
 		if ( ! app.initDone ) {
 			$( 'body' ).on( 'click', 'a', app.clickLink );
@@ -155,6 +167,13 @@
 		}, 1000 );
 	};
 
+	app.triggerEvent = function( $search ) {
+		if ( $search.length ) {
+			var ids = $search.parents( '.todolist' ).map(function() { return this.id; }).get();
+			$( 'body' ).trigger( 'basecamp_tasks_highlighted', { 'type' : 'user', 'search' : app.search_name, 'ids' : ids } );
+		}
+	};
+
 	app.init();
 
 	window.BCHighlightUser = window.BCHighlightUser || app;
@@ -179,6 +198,7 @@
 		$( 'body' ).on( 'click', '.minifier.minify-all', app.toggleAllLists );
 		$( 'body' ).on( 'click', '.minifier.minify-lists', app.toggleList );
 		$( 'body' ).on( 'click', 'a', app.clickLink );
+		$( 'body' ).on( 'basecamp_tasks_highlighted', app.maybeShowOnHighlight );
 
 		app.addStyles();
 		app.addAllButtons();
@@ -202,7 +222,7 @@
 			css += '.minifier.minify-lists {';
 				css += 'position: absolute;';
 				css += 'right: 0;';
-				css += 'top: .8em;';
+				css += 'top: .4em;';
 			css += '}';
 			css += '.minifier.minify-all {';
 				css += 'display: inline-block;';
@@ -215,7 +235,7 @@
 
 	app.addAllButtons = function() {
 		app.addAllButton();
-		$( '[data-sortable-type="todolist"]' ).each( app.addButtons );
+		$( '.todolists li[data-sortable-type="todolist"]' ).each( app.addButtons );
 
 		if ( app.autoHide ) {
 			setTimeout( function() {
@@ -298,6 +318,16 @@
 			app.addAllButtons();
 			setTimeout( app.clickLink, 200 );
 		}, 1000 );
+	};
+
+	app.maybeShowOnHighlight = function( evt, data ) {
+		var index, ids = data.ids;
+		for (index = ids.length - 1; index >= 0; index--) {
+			var $button = $( '[data-selector="sortable_' + ids[ index ] + '"]' );
+			if ( $button.length && $button.data( 'hidden' ) ) {
+				$button.trigger( 'click' );
+			}
+		}
 	};
 
 	app.init();
