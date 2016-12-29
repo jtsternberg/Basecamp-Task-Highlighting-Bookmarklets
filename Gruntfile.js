@@ -39,7 +39,9 @@ module.exports = function(grunt) {
 			all: {
 				files: {
 					'basecamp-ui-improvements.min.js': ['basecamp-ui-improvements.js'],
-					'basecamp3-ui-improvements.min.js': ['basecamp3-ui-improvements.js']
+					'basecamp3-ui-improvements.min.js': ['basecamp3-ui-improvements.js'],
+					'chrome-basecamp-ui-improvements/basecamp-ui-improvements.min.js': ['basecamp-ui-improvements.js'],
+					'chrome-basecamp-ui-improvements/basecamp3-ui-improvements.min.js': ['basecamp3-ui-improvements.js']
 				},
 				options: {
 					mangle: false

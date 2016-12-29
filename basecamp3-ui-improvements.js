@@ -1,72 +1,112 @@
-(function(window, document, undefined){
+(function(window, document, $, undefined){
 	'use strict';
 
-	if ( ! window.BC || ! window.BC.current ) {
-		return;
-	}
-
-	var $, jq, app;
+	var app;
 
 	if ( window.BC3HighlightMe && window.BC3HighlightMe.highlightMe ) {
-		window.BC3HighlightMe.highlightMe();
-		return;
+		return window.BC3HighlightMe.init();
 	}
 
-	app = {
-		me : window.BC.current.person,
-		initDone : false
+	var getEl = function( id ) {
+		return document.getElementById( id );
 	};
 
-	app.highlightMe = function() {
-		if ( ! app.me.id ) {
-			return;
-		}
+	var $id = function( id ) {
+		return $( getEl( id ) );
+	};
 
+	app = {
+		me : $( '[name="current-person-id"]' ).attr( 'content' ),
+		highlighted : null
+	};
+
+	app.unHighLight = function() {
+		$id( 'bc-highlight-me' ).text( 'Highlight My Tasks' );
+		$( '.BC-highlight-me' ).removeClass( 'BC-highlight-me' );
+		app.highlighted = false;
+	};
+
+	app.doHighlight = function() {
 		var $todos = app.getToDos();
 
-		if ( ! $todos.length ) {
-			return app.init( 'Hey, looks like you\'re task-free!' );
-		}
+		$id( 'bc-highlight-me' ).text( 'Unhighlight My Tasks' );
 
-		$todos.addClass( 'BC-highlight-me' );
+		if ( $todos.length ) {
+			$todos.addClass( 'BC-highlight-me' );
+		}
 
 		app.triggerEvent( $todos );
 
-		app.init( 'Found '+ $todos.length +' tasks for you.' );
+		app.highlighted = true;
+
+		return $todos;
 	};
 
-	app.init = function( alertMsg ) {
-		if ( app.initDone ) {
+	app.highlightMe = function( clicked ) {
+		if ( ! app.me || ( ! clicked && null === app.highlighted ) ) {
 			return;
 		}
 
-		alert( alertMsg );
+		app.maybeAddButton();
 
-		// Check for highlight every second. This accounts for page navigation.
-		window.setInterval( app.highlightMe, 1500 );
+		if ( app.highlighted && clicked ) {
+			return app.unHighLight();
+		}
 
+		if ( ! app.highlighted && clicked ) {
+
+			var $todos = app.doHighlight();
+
+			if ( ! $todos.length ) {
+				window.alert( 'Hey, looks like you\'re task-free!' );
+			} else {
+				window.alert( 'Found '+ $todos.length +' tasks for you.' );
+			}
+		}
+	};
+
+	app.init = function() {
 		app.addStyles();
-
-		app.initDone = true;
+		app.maybeAddButton();
 	};
 
 	app.addStyles = function() {
-		var css = '';
-		css += '<style type="text/css" media="screen">';
-			css += '.BC-highlight-me {';
-				// css += 'background: #FFFF5C;';
-				css += 'background: rgba(255, 255, 92, 0.4);';
-				css += 'border-radius: 15px;';
-				css += 'padding: 5px 8px 5px 10px !important;';
-				css += 'margin-left: -10px !important;';
-				css += 'margin-bottom: 7px;';
-			css += '}';
-		css += '</style>';
-		$( 'head' ).append( css );
+		if ( ! getEl( 'bc-highlight-me-styles' ) ) {
+			var css = '';
+			css += '<style id="bc-highlight-me-styles" type="text/css" media="screen">';
+				css += '.BC-highlight-me {';
+					// css += 'background: #FFFF5C;';
+					css += 'background: rgba(255, 255, 92, 0.4);';
+					css += 'border-radius: 15px;';
+					css += 'padding: 5px 8px 5px 10px !important;';
+					css += 'margin-left: -10px !important;';
+					css += 'margin-bottom: 7px;';
+				css += '}';
+				css += '#bc-highlight-me {';
+					css += 'margin-right: 5px';
+				css += '}';
+			css += '</style>';
+			$( 'head' ).append( css );
+		}
+	};
+
+	app.maybeAddButton = function() {
+		if ( ! getEl( 'bc-highlight-me' ) ) {
+			var $toolbar = $( '.perma-toolbar' );
+			var $btn = $toolbar.find( '[data-bridge-action-type="bookmark"]' );
+			$btn.before( '<button id="bc-highlight-me" type="button" class="'+ $btn.attr( 'class' ) +'"></button>');
+			if ( ! app.highlighted ) {
+				app.unHighLight();
+			} else {
+				app.doHighlight();
+			}
+
+			$( document.body ).on( 'click', '#bc-highlight-me', app.highlightMe );
+		}
 	};
 
 	app.getToDos = function() {
-		return $( '[data-avatar-for-person-id="'+ app.me.id +'"]' ).parents( 'li.todo' );
+		return $( '[data-avatar-for-person-id="'+ app.me +'"]' ).parents( 'li.todo' );
 	};
 
 	app.triggerEvent = function( $todos ) {
@@ -76,53 +116,37 @@
 		}
 	};
 
-	if ( window.jQuery ) {
+	app.init();
 
-		$ = window.jQuery;
-		app.highlightMe();
-
-	} else {
-
-		jq = document.createElement('script');
-		jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js";
-		document.getElementsByTagName('head')[0].appendChild(jq);
-
-		setTimeout( function() {
-			jQuery.noConflict();
-
-			$ = window.jQuery;
-			app.highlightMe();
-		}, 500 );
-
-	}
+	// Check for highlight every second. This accounts for page navigation.
+	app.interval = app.interval || window.setInterval( app.init, 1500 );
 
 	window.BC3HighlightMe = window.BC3HighlightMe || app;
 
-})(window, document);
+})(window, document, jQuery);
 
 (function(window, document, $, undefined){
 	'use strict';
 
-	if ( ! window.BC || ! window.BC.current ) {
-		return;
+	if ( window.BCHighlightUser && window.BCHighlightUser.init ) {
+		return window.BCHighlightUser.init();
 	}
 
-	if ( window.BCHighlightUser && window.BCHighlightUser.init ) {
-		window.BCHighlightUser.init();
-		return;
-	}
+	var getEl = function( id ) {
+		return document.getElementById( id );
+	};
 
 	var app = {
-		search_name : '',
-		initDone : false
+		search_name : ''
 	};
 
-	$.expr[':'].Contains = function(a, i, m) {
-		return $(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
-	};
+	if ( ! $.expr[':'].Contains ) {
+		$.expr[':'].Contains = function(a, i, m) {
+			return $(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+		};
+	}
 
-	app.init = function() {
-
+	app.searchUser = function() {
 		app.search_name = prompt( 'Search Name:' );
 
 		var $search = app.highlightUser();
@@ -131,35 +155,47 @@
 		alert( number + ' tasks found for '+ app.search_name + '.' );
 
 		app.triggerEvent( $search );
-
-		if ( ! app.initDone ) {
-			// Check for highlight every second. This accounts for page navigation.
-			window.setInterval( app.highlightUser, 1500 );
-			app.addStyles();
-		}
-
-		app.initDone = true;
 	};
 
-	app.addStyles = function() {
-		var css = '';
-		css += '<style type="text/css" media="screen">';
-			css += '.BC-user-highlight {';
-			// css += 'background: #A4FF5C;';
-			css += 'background: rgba(164, 255, 92, 0.42);';
-				css += 'border-radius: 15px;';
-				css += 'padding: 5px 8px 5px 10px !important;';
-				css += 'margin-left: -10px !important;';
-				css += 'margin-bottom: 7px;';
-			css += '}';
-		css += '</style>';
-		$( 'head' ).append( css );
+	app.init = function() {
+		app.maybeAddStyles();
+		app.maybeAddButton();
+		app.highlightUser();
+	};
+
+	app.maybeAddStyles = function() {
+		if ( ! getEl( 'bc-highlight-user-styles' ) ) {
+			var css = '';
+			css += '<style id="bc-highlight-user-styles" type="text/css" media="screen">';
+				css += '.BC-user-highlight {';
+				// css += 'background: #A4FF5C;';
+				css += 'background: rgba(164, 255, 92, 0.42);';
+					css += 'border-radius: 15px;';
+					css += 'padding: 5px 8px 5px 10px !important;';
+					css += 'margin-left: -10px !important;';
+					css += 'margin-bottom: 7px;';
+				css += '}';
+			css += '</style>';
+			$( 'head' ).append( css );
+		}
+	};
+
+	app.maybeAddButton = function() {
+		if ( ! getEl( 'bc-highlight-user' ) ) {
+			var $toolbar = $( '.perma-toolbar' );
+			var $btn = $toolbar.find( '[data-bridge-action-type="bookmark"]' );
+			$btn.before( '<button id="bc-highlight-user" class="'+ $btn.attr( 'class' ) +'" type="button">Search User <span class="topnav-menu__icon topnav-menu__icon--search"></span></button>');
+
+			$( document.body ).on( 'click', '#bc-highlight-user', app.searchUser );
+		}
 	};
 
 	app.highlightUser = function() {
 		if ( ! app.search_name ) {
 			return;
 		}
+
+		app.maybeAddButton();
 
 		var $search = $( '.todo_assignee .todo_assignee_name:Contains('+ app.search_name +')' );
 
@@ -174,12 +210,15 @@
 
 	app.triggerEvent = function( $search ) {
 		if ( $search.length ) {
-			var ids = $search.parents( '.todolist' ).map(function() { return this.id; }).get();
-			$( 'body' ).trigger( 'basecamp_tasks_highlighted', { 'type' : 'user', 'search' : app.search_name, 'ids' : ids } );
+			var ids = $search.parents( '.todolist' ).map( function() { return $( this ).data( 'recordingId' ); } ).get();
+			$( 'body' ).trigger( 'basecamp_tasks_highlighted', { 'type' : 'me', 'ids' : ids } );
 		}
 	};
 
 	app.init();
+
+	// Check for highlight every second. This accounts for page navigation.
+	app.interval = app.interval || window.setInterval( app.init, 1500 );
 
 	window.BCHighlightUser = window.BCHighlightUser || app;
 
@@ -189,79 +228,88 @@
 	'use strict';
 
 	if ( window.BCMinifier && window.BCMinifier.init ) {
-		window.BCMinifier.addAllButtons();
+		window.BCMinifier.init();
 		return;
 	}
+
+	var getEl = function( id ) {
+		return document.getElementById( id );
+	};
 
 	var app = {
 		upArrow : '&ShortUpArrow;',
 		dwnArrow : '&ShortDownArrow;',
-		autoHide : true
+		autoHide : false
 	};
 
 	app.init = function() {
-		$( 'body' )
-			.on( 'click', '.minifier.minify-all', app.toggleAllLists )
-			.on( 'click', '.minifier.minify-lists', app.toggleList )
-			.on( 'click', 'a', app.clickLink )
-			.on( 'basecamp_tasks_highlighted', app.maybeShowOnHighlight );
+		app.maybeAddStyles();
+		app.maybeAddButtons();
 
-		app.addStyles();
-		app.addAllButtons();
-	};
-
-	app.addStyles = function() {
-		var css = '';
-		css += '<style type="text/css" media="screen">';
-			css += '.minifier.minify-lists, .minify-all-icon {';
-				css += 'top: .05em;';
-				css += 'cursor: pointer;';
-				css += 'background: #3cb371;';
-				css += 'padding: 1px 6px;';
-				css += 'border-radius: 30px;';
-				css += 'color: #ffffff;';
-				css += 'font-size: 1.5em;';
-				css += 'display: inline-block;';
-				css += 'margin-left: 6px;';
-				css += 'position: relative;';
-				css += 'width: 1.2em;';
-				css += 'height: 1.2em;';
-				css += 'line-height: 1em;';
-				css += 'text-align: center;';
-			css += '}';
-			css += '.minifier.minify-lists {';
-				css += 'position: absolute;';
-				css += 'right: 0;';
-			css += '}';
-			css += '.minifier.minify-all {';
-				css += 'display: inline-block;';
-				css += 'margin-left: 10px;';
-				css += 'cursor: pointer;';
-			css += '}';
-		css += '</style>';
-		$( 'head' ).append( css );
-	};
-
-	app.addAllButtons = function() {
-		app.addAllButton();
-		$( '.many_lists .todolist' ).each( app.addButtons );
-
-		if ( app.autoHide ) {
+		if ( app.autoHide && 'done' !== app.autoHide ) {
 			setTimeout( function() {
 				$( '.minifier.minify-all' ).trigger( 'click' );
 			}, 100 );
+			app.autoHide = 'done';
+		}
+	};
+
+	app.maybeAddStyles = function() {
+		if ( ! getEl( 'bc-minifiy-lists-styles' ) ) {
+			var css = '';
+			css += '<style id="bc-minifiy-lists-styles" type="text/css" media="screen">';
+				css += '.minifier.minify-lists, .minify-all-icon {';
+					css += 'top: .05em;';
+					css += 'cursor: pointer;';
+					css += 'background: #3cb371;';
+					css += 'padding: 1px 6px;';
+					css += 'border-radius: 30px;';
+					css += 'color: #ffffff;';
+					css += 'font-size: 1.5em;';
+					css += 'display: inline-block;';
+					css += 'margin-left: 6px;';
+					css += 'position: relative;';
+					css += 'width: 1.2em;';
+					css += 'height: 1.2em;';
+					css += 'line-height: 1em;';
+					css += 'text-align: center;';
+				css += '}';
+				css += '.minifier.minify-lists {';
+					css += 'position: absolute;';
+					css += 'right: 0;';
+				css += '}';
+				css += '.minifier.minify-all {';
+					css += 'display: inline-block;';
+					css += 'margin-left: 10px;';
+					css += 'cursor: pointer;';
+				css += '}';
+			css += '</style>';
+			$( 'head' ).append( css );
+		}
+	};
+
+	app.maybeAddButtons = function() {
+		if ( app.addAllButton() ) {
+			$( '.many_lists .todolist' ).each( app.addButtons );
+
+			$( document.body )
+				.on( 'click', '.minifier.minify-all', app.toggleAllLists )
+				.on( 'click', '.minifier.minify-lists', app.toggleList )
+				.on( 'basecamp_tasks_highlighted', app.maybeShowOnHighlight );
 		}
 	};
 
 	app.addAllButton = function() {
-		var $btn = $( '.action_button.primary[data-behavior="expand_new_todolist"]' );
-		if ( $btn.next( '.minifier' ).length ) {
-			return;
+		if ( ! getEl( 'bc-minifiy-all-lists' ) ) {
+			var $btn = $( '.action_button.primary[data-behavior="expand_new_todolist"]' );
+			var html = '<div id="bc-minifiy-all-lists" class="minifier minify-all" title="Minify All"><span class="minify-all-text">Minify All</span><span class="minify-all-icon">' + app.upArrow +'</span></div>';
+
+			$btn.after( html );
+
+			return true;
 		}
 
-		var html = '<div class="minifier minify-all" title="Minify All"><span class="minify-all-text">Minify All</span><span class="minify-all-icon">' + app.upArrow +'</span></div>';
-
-		$btn.after( html );
+		return false;
 	};
 
 	app.addButtons = function() {
@@ -319,21 +367,10 @@
 		$all_button.find( '.minify-all-icon' ).html( html );
 	};
 
-	app.clickLink = function() {
-		setTimeout( function() {
-			if ( $( '.minifier' ).length ) {
-				return;
-			}
-
-			app.addAllButtons();
-			setTimeout( app.clickLink, 200 );
-		}, 1000 );
-	};
-
 	app.maybeShowOnHighlight = function( evt, data ) {
-		var index, ids = data.ids;
-		for (index = ids.length - 1; index >= 0; index--) {
-			var $button = $( '[data-selector="sortable_' + ids[ index ] + '"]' );
+		var index;
+		for (index = data.ids.length - 1; index >= 0; index--) {
+			var $button = $( '[data-selector="recording_' + data.ids[ index ] + '"]' );
 			if ( $button.length && $button.data( 'hidden' ) ) {
 				$button.trigger( 'click' );
 			}
@@ -341,6 +378,9 @@
 	};
 
 	app.init();
+
+	// Check for highlight every second. This accounts for page navigation.
+	app.interval = app.interval || window.setInterval( app.init, 1500 );
 
 	window.BCMinifier = window.BCMinifier || app;
 

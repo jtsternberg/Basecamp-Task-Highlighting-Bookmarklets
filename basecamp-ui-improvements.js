@@ -191,7 +191,7 @@
 	var app = {
 		upArrow : '&ShortUpArrow;',
 		dwnArrow : '&ShortDownArrow;',
-		autoHide : true
+		autoHide : false
 	};
 
 	app.init = function() {

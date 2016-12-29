@@ -1,72 +1,112 @@
-(function(window, document, undefined){
+(function(window, document, $, undefined){
 	'use strict';
 
-	if ( ! window.BC || ! window.BC.current ) {
-		return;
-	}
-
-	var $, jq, app;
+	var app;
 
 	if ( window.BC3HighlightMe && window.BC3HighlightMe.highlightMe ) {
-		window.BC3HighlightMe.highlightMe();
-		return;
+		return window.BC3HighlightMe.init();
 	}
 
-	app = {
-		me : window.BC.current.person,
-		initDone : false
+	var getEl = function( id ) {
+		return document.getElementById( id );
 	};
 
-	app.highlightMe = function() {
-		if ( ! app.me.id ) {
-			return;
-		}
+	var $id = function( id ) {
+		return $( getEl( id ) );
+	};
 
+	app = {
+		me : $( '[name="current-person-id"]' ).attr( 'content' ),
+		highlighted : null
+	};
+
+	app.unHighLight = function() {
+		$id( 'bc-highlight-me' ).text( 'Highlight My Tasks' );
+		$( '.BC-highlight-me' ).removeClass( 'BC-highlight-me' );
+		app.highlighted = false;
+	};
+
+	app.doHighlight = function() {
 		var $todos = app.getToDos();
 
-		if ( ! $todos.length ) {
-			return app.init( 'Hey, looks like you\'re task-free!' );
-		}
+		$id( 'bc-highlight-me' ).text( 'Unhighlight My Tasks' );
 
-		$todos.addClass( 'BC-highlight-me' );
+		if ( $todos.length ) {
+			$todos.addClass( 'BC-highlight-me' );
+		}
 
 		app.triggerEvent( $todos );
 
-		app.init( 'Found '+ $todos.length +' tasks for you.' );
+		app.highlighted = true;
+
+		return $todos;
 	};
 
-	app.init = function( alertMsg ) {
-		if ( app.initDone ) {
+	app.highlightMe = function( clicked ) {
+		if ( ! app.me || ( ! clicked && null === app.highlighted ) ) {
 			return;
 		}
 
-		alert( alertMsg );
+		app.maybeAddButton();
 
-		// Check for highlight every second. This accounts for page navigation.
-		window.setInterval( app.highlightMe, 1500 );
+		if ( app.highlighted && clicked ) {
+			return app.unHighLight();
+		}
 
+		if ( ! app.highlighted && clicked ) {
+
+			var $todos = app.doHighlight();
+
+			if ( ! $todos.length ) {
+				window.alert( 'Hey, looks like you\'re task-free!' );
+			} else {
+				window.alert( 'Found '+ $todos.length +' tasks for you.' );
+			}
+		}
+	};
+
+	app.init = function() {
 		app.addStyles();
-
-		app.initDone = true;
+		app.maybeAddButton();
 	};
 
 	app.addStyles = function() {
-		var css = '';
-		css += '<style type="text/css" media="screen">';
-			css += '.BC-highlight-me {';
-				// css += 'background: #FFFF5C;';
-				css += 'background: rgba(255, 255, 92, 0.4);';
-				css += 'border-radius: 15px;';
-				css += 'padding: 5px 8px 5px 10px !important;';
-				css += 'margin-left: -10px !important;';
-				css += 'margin-bottom: 7px;';
-			css += '}';
-		css += '</style>';
-		$( 'head' ).append( css );
+		if ( ! getEl( 'bc-highlight-me-styles' ) ) {
+			var css = '';
+			css += '<style id="bc-highlight-me-styles" type="text/css" media="screen">';
+				css += '.BC-highlight-me {';
+					// css += 'background: #FFFF5C;';
+					css += 'background: rgba(255, 255, 92, 0.4);';
+					css += 'border-radius: 15px;';
+					css += 'padding: 5px 8px 5px 10px !important;';
+					css += 'margin-left: -10px !important;';
+					css += 'margin-bottom: 7px;';
+				css += '}';
+				css += '#bc-highlight-me {';
+					css += 'margin-right: 5px';
+				css += '}';
+			css += '</style>';
+			$( 'head' ).append( css );
+		}
+	};
+
+	app.maybeAddButton = function() {
+		if ( ! getEl( 'bc-highlight-me' ) ) {
+			var $toolbar = $( '.perma-toolbar' );
+			var $btn = $toolbar.find( '[data-bridge-action-type="bookmark"]' );
+			$btn.before( '<button id="bc-highlight-me" type="button" class="'+ $btn.attr( 'class' ) +'"></button>');
+			if ( ! app.highlighted ) {
+				app.unHighLight();
+			} else {
+				app.doHighlight();
+			}
+
+			$( document.body ).on( 'click', '#bc-highlight-me', app.highlightMe );
+		}
 	};
 
 	app.getToDos = function() {
-		return $( '[data-avatar-for-person-id="'+ app.me.id +'"]' ).parents( 'li.todo' );
+		return $( '[data-avatar-for-person-id="'+ app.me +'"]' ).parents( 'li.todo' );
 	};
 
 	app.triggerEvent = function( $todos ) {
@@ -76,26 +116,11 @@
 		}
 	};
 
-	if ( window.jQuery ) {
+	app.init();
 
-		$ = window.jQuery;
-		app.highlightMe();
-
-	} else {
-
-		jq = document.createElement('script');
-		jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js";
-		document.getElementsByTagName('head')[0].appendChild(jq);
-
-		setTimeout( function() {
-			jQuery.noConflict();
-
-			$ = window.jQuery;
-			app.highlightMe();
-		}, 500 );
-
-	}
+	// Check for highlight every second. This accounts for page navigation.
+	app.interval = app.interval || window.setInterval( app.init, 1500 );
 
 	window.BC3HighlightMe = window.BC3HighlightMe || app;
 
-})(window, document);
+})(window, document, jQuery);
