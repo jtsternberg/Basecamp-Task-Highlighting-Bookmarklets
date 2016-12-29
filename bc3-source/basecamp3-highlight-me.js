@@ -52,7 +52,8 @@
 		var css = '';
 		css += '<style type="text/css" media="screen">';
 			css += '.BC-highlight-me {';
-				css += 'background: #FFFF5C;';
+				// css += 'background: #FFFF5C;';
+				css += 'background: rgba(255, 255, 92, 0.4);';
 				css += 'border-radius: 15px;';
 				css += 'padding: 5px 8px 5px 10px !important;';
 				css += 'margin-left: -9px !important;';

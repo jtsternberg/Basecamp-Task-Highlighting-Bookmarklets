@@ -42,7 +42,8 @@
 		var css = '';
 		css += '<style type="text/css" media="screen">';
 			css += '.BC-user-highlight {';
-			css += 'background: #A4FF5C;';
+			// css += 'background: #A4FF5C;';
+			css += 'background: rgba(164, 255, 92, 0.42);';
 				css += 'border-radius: 15px;';
 				css += 'padding: 5px 8px 5px 10px !important;';
 				css += 'margin-left: -9px !important;';
