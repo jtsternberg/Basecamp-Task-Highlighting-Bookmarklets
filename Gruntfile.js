@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 
 		jshint: {
-    		files: ['Gruntfile.js', 'source/**/*.js'],
+    		files: ['Gruntfile.js', 'source/**/*.js', 'bc3-source/**/*.js'],
 			options: {
 				curly   : true,
 				eqeqeq  : true,
@@ -28,7 +28,10 @@ module.exports = function(grunt) {
 
 		concat : {
 			dist: {
-				files: { 'basecamp-ui-improvements.js': ['source/**/*.js'] }
+				files: {
+					'basecamp-ui-improvements.js': ['source/**/*.js'],
+					'basecamp3-ui-improvements.js': ['bc3-source/**/*.js'],
+				}
 			}
 		},
 
@@ -36,6 +39,7 @@ module.exports = function(grunt) {
 			all: {
 				files: {
 					'basecamp-ui-improvements.min.js': ['basecamp-ui-improvements.js'],
+					'basecamp3-ui-improvements.min.js': ['basecamp3-ui-improvements.js']
 				},
 				options: {
 					mangle: false
@@ -44,12 +48,12 @@ module.exports = function(grunt) {
 		},
 
 		exec: {
-			bookmarklet: 'php ~/bookmarklets source bookmarklets',
+			bookmarklet: 'php ~/.dotfiles/bin/bookmarklets source bookmarklets && php ~/.dotfiles/bin/bookmarklets bc3-source bookmarklets',
 		},
 
 		watch: {
 			js: {
-				files: ['Gruntfile.js', 'source/**/*.js'],
+				files: ['Gruntfile.js', 'source/**/*.js', 'bc3-source/**/*.js'],
 				tasks: ['default'],
 			}
 		}
