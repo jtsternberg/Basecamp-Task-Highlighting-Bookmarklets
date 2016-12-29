@@ -31,7 +31,8 @@
 		app.triggerEvent( $search );
 
 		if ( ! app.initDone ) {
-			$( 'body' ).on( 'click', 'a', app.clickLink );
+			// Check for highlight every second. This accounts for page navigation.
+			window.setInterval( app.highlightUser, 1500 );
 			app.addStyles();
 		}
 
@@ -67,12 +68,6 @@
 		$( '.BC-user-highlight' ).removeClass( 'BC-user-highlight' );
 
 		return $search.parents( 'li.todo' ).addClass( 'BC-user-highlight' );
-	};
-
-	app.clickLink = function() {
-		setTimeout( function() {
-			app.highlightUser();
-		}, 1000 );
 	};
 
 	app.triggerEvent = function( $search ) {

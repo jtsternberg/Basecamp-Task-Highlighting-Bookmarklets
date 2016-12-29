@@ -42,7 +42,9 @@
 
 		alert( alertMsg );
 
-		$( 'body' ).on( 'click', 'a', app.clickLink );
+		// Check for highlight every second. This accounts for page navigation.
+		window.setInterval( app.highlightMe, 1500 );
+
 		app.addStyles();
 
 		app.initDone = true;
@@ -65,12 +67,6 @@
 
 	app.getToDos = function() {
 		return $( '[data-avatar-for-person-id="'+ app.me.id +'"]' ).parents( 'li.todo' );
-	};
-
-	app.clickLink = function() {
-		setTimeout( function() {
-			app.highlightMe();
-		}, 1000 );
 	};
 
 	app.triggerEvent = function( $todos ) {
@@ -137,7 +133,8 @@
 		app.triggerEvent( $search );
 
 		if ( ! app.initDone ) {
-			$( 'body' ).on( 'click', 'a', app.clickLink );
+			// Check for highlight every second. This accounts for page navigation.
+			window.setInterval( app.highlightUser, 1500 );
 			app.addStyles();
 		}
 
@@ -173,12 +170,6 @@
 		$( '.BC-user-highlight' ).removeClass( 'BC-user-highlight' );
 
 		return $search.parents( 'li.todo' ).addClass( 'BC-user-highlight' );
-	};
-
-	app.clickLink = function() {
-		setTimeout( function() {
-			app.highlightUser();
-		}, 1000 );
 	};
 
 	app.triggerEvent = function( $search ) {
