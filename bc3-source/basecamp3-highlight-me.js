@@ -58,7 +58,7 @@
 				css += 'background: rgba(255, 255, 92, 0.4);';
 				css += 'border-radius: 15px;';
 				css += 'padding: 5px 8px 5px 10px !important;';
-				css += 'margin-left: -9px !important;';
+				css += 'margin-left: -10px !important;';
 				css += 'margin-bottom: 7px;';
 			css += '}';
 		css += '</style>';

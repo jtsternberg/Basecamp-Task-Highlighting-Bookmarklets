@@ -47,7 +47,7 @@
 			css += 'background: rgba(164, 255, 92, 0.42);';
 				css += 'border-radius: 15px;';
 				css += 'padding: 5px 8px 5px 10px !important;';
-				css += 'margin-left: -9px !important;';
+				css += 'margin-left: -10px !important;';
 				css += 'margin-bottom: 7px;';
 			css += '}';
 		css += '</style>';
