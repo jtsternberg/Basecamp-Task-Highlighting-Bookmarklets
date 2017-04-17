@@ -3,7 +3,7 @@
 
 	"name": "Basecamp UI Improvements",
 	"description": "This extension provides improvements to the Basecamp UI by providing the ability to toggle lists and highlight users' tasks.",
-	"version": "0.1.0",
+	"version": "0.1.1",
 
 	"content_scripts": [
 		{
