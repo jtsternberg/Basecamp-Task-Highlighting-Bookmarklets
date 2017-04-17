@@ -22,6 +22,7 @@ module.exports = function(grunt) {
 					exports : true,
 					module  : false
 				},
+				reporterOutput: '',
 				predef  :['document','window','alert','jQuery','setTimeout','prompt']
 			}
 		},
