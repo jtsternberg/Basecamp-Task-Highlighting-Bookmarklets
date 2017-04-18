@@ -94,7 +94,7 @@
 		if ( ! getEl( 'bc-highlight-me' ) ) {
 			var $toolbar = $( '.perma-toolbar' );
 			var $btn = $toolbar.find( '[data-bridge-action-type="bookmark"]' );
-			var classes = $btn.attr( 'class' ).replace( 'bookmark', 'highlight-me' );
+			var classes = $btn.attr( 'class' ).replace( new RegExp( 'bookmark', 'g' ), 'highlight-me' );
 			$btn.before( '<button id="bc-highlight-me" type="button" class="'+ classes +'"></button>');
 			if ( ! app.highlighted ) {
 				app.unHighLight();

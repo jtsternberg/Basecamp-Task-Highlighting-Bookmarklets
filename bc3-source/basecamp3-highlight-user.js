@@ -57,7 +57,7 @@
 		if ( ! getEl( 'bc-highlight-user' ) ) {
 			var $toolbar = $( '.perma-toolbar' );
 			var $btn = $toolbar.find( '[data-bridge-action-type="bookmark"]' );
-			var classes = $btn.attr( 'class' ).replace( 'bookmark', 'highlight-user' );
+			var classes = $btn.attr( 'class' ).replace( new RegExp( 'bookmark', 'g' ), 'highlight-user' );
 			$btn.before( '<button id="bc-highlight-user" class="'+ classes +'" type="button">Search User <span class="topnav-menu__icon topnav-menu__icon--search"></span></button>');
 
 			$( document.body ).on( 'click', '#bc-highlight-user', app.searchUser );
